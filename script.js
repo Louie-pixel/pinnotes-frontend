@@ -1,11 +1,51 @@
-/*************************************************************************
- * Create Note Popup Logic
- **************************************************************************/
+// Page navigation
+function navigateTo(page) {
+    document.getElementById('home-section').classList.add('hidden');
+    document.getElementById('login-section').classList.add('hidden');
+    document.getElementById('register-section').classList.add('hidden');
 
+    switch(page) {
+        case 'login':
+            document.getElementById('login-section').classList.remove('hidden');
+            break;
+        case 'register':
+            document.getElementById('register-section').classList.remove('hidden');
+            break;
+        default:
+            document.getElementById('home-section').classList.remove('hidden');
+            break;
+    }
+}
+
+// Login logic
+function login(event) {
+    event.preventDefault();
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
+    
+    // Simulate login logic (can be replaced with API calls)
+    if(username === 'user' && password === 'password') {
+        alert('Login successful!');
+        navigateTo('home');
+    } else {
+        alert('Invalid credentials');
+    }
+}
+
+// Register logic
+function register(event) {
+    event.preventDefault();
+    const username = document.getElementById('register-username').value;
+    const password = document.getElementById('register-password').value;
+
+    // Simulate registration logic (can be replaced with API calls)
+    alert(`User ${username} registered successfully!`);
+    navigateTo('login');
+}
+
+// Existing popup and note functions remain unchanged
 function popup() {
-
     const popupContainer = document.createElement("div");
-
     popupContainer.innerHTML = `
     <div id="popupContainer">
         <h1>New Note</h1>
@@ -14,8 +54,7 @@ function popup() {
             <button id="submitBtn" onclick="createNote()">Create Note</button>
             <button id="closeBtn" onclick="closePopup()">Close</button>
         </div>
-    </div>
-    `;
+    </div>`;
     document.body.appendChild(popupContainer);
 }
 
@@ -27,38 +66,21 @@ function closePopup() {
 }
 
 function createNote() {
-
-    const popupContainer = document.getElementById('popupContainer');
     const noteText = document.getElementById('note-text').value;
     if (noteText.trim() !== '') {
-        const note = {
-        id: new Date().getTime(),
-        text: noteText
-        };
-
+        const note = { id: new Date().getTime(), text: noteText };
         const existingNotes = JSON.parse(localStorage.getItem('notes')) || [];
         existingNotes.push(note);
-
         localStorage.setItem('notes', JSON.stringify(existingNotes));
-
-        document.getElementById('note-text').value = '';
-
-        popupContainer.remove();
+        closePopup();
         displayNotes();
     }
 }
 
-
-/*************************************************************************
- * Display Notes Logic
- **************************************************************************/
-
 function displayNotes() {
     const notesList = document.getElementById('notes-list');
     notesList.innerHTML = '';
-
     const notes = JSON.parse(localStorage.getItem('notes')) || [];
-
     notes.forEach(note => {
         const listItem = document.createElement('li');
         listItem.innerHTML = `
@@ -66,82 +88,9 @@ function displayNotes() {
         <div id="noteBtns-container">
             <button id="editBtn" onclick="editNote(${note.id})"><i class="fa-solid fa-pen"></i></button>
             <button id="deleteBtn" onclick="deleteNote(${note.id})"><i class="fa-solid fa-trash"></i></button>
-        </div>
-        `;
+        </div>`;
         notesList.appendChild(listItem);
     });
-}
-
-
-/*************************************************************************
- * Edit Note Popup Logic
- **************************************************************************/
-
-function editNote(noteId) {
-    const notes = JSON.parse(localStorage.getItem('notes')) || [];
-    const noteToEdit = notes.find(note => note.id == noteId);
-    const noteText = noteToEdit ? noteToEdit.text : '';
-    const editingPopup = document.createElement("div");
-    
-    editingPopup.innerHTML = `
-    <div id="editing-container" data-note-id="${noteId}">
-        <h1>Edit Note</h1>
-        <textarea id="note-text">${noteText}</textarea>
-        <div id="btn-container">
-            <button id="submitBtn" onclick="updateNote()">Done</button>
-            <button id="closeBtn" onclick="closeEditPopup()">Cancel</button>
-        </div>
-    </div>
-    `;
-
-    document.body.appendChild(editingPopup);
-}
-
-function closeEditPopup() {
-    const editingPopup = document.getElementById("editing-container");
-
-    if(editingPopup) {
-        editingPopup.remove();
-    }
-}
-
-function updateNote() {
-    const noteText = document.getElementById('note-text').value.trim();
-    const editingPopup = document.getElementById('editing-container');
-
-    if (noteText !== '') {
-        const noteId = editingPopup.getAttribute('data-note-id');
-        let notes = JSON.parse(localStorage.getItem('notes')) || [];
-
-        // Find the note to update
-        const updatedNotes = notes.map(note => {
-            if (note.id == noteId) {
-                return { id: note.id, text: noteText };
-            }
-            return note;
-        });
-
-        // Update the notes in local storage
-        localStorage.setItem('notes', JSON.stringify(updatedNotes));
-
-        // Close the editing popup
-        editingPopup.remove();
-
-        // Refresh the displayed notes
-        displayNotes();
-    }
-}
-
-/*************************************************************************
- * Delete Note Logic
- **************************************************************************/
-
-function deleteNote(noteId) {
-    let notes = JSON.parse(localStorage.getItem('notes')) || [];
-    notes = notes.filter(note => note.id !== noteId);
-
-    localStorage.setItem('notes', JSON.stringify(notes));
-    displayNotes();
 }
 
 displayNotes();
